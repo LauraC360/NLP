@@ -216,35 +216,169 @@ def replace_words(text, words):
 #     return new_texts
 
 
-def replace_words_with_all_variants(text, words, keywords, max_sentences=150):
+# def replace_words_with_all_variants(text, words, keywords, max_sentences=150):
+#     replacements = {}
+#
+#     # Creăm un dicționar cu toate variantele posibile pentru fiecare cuvânt
+#     for word in words:
+#         if word in keywords:  # Înlocuim doar cuvintele cheie
+#             synonyms, hypernyms, antonyms = get_synonyms_hypernyms_antonyms_en(word)
+#
+#             # Adăugăm toate variantele (sinonime, antonime, hiperonime)
+#             replacement_options = []
+#
+#             if antonyms:
+#                 replacement_options.append(f"not {random.choice(antonyms)}")
+#
+#             if synonyms:
+#                 replacement_options.extend(synonyms)
+#
+#             if hypernyms:
+#                 replacement_options.extend(hypernyms)
+#
+#             if replacement_options:
+#                 replacements[word] = replacement_options
+#         else:
+#             replacements[word] = [word]  # Lăsăm cuvintele non-cheie nemodificate
+#
+#     # Creăm combinațiile posibile
+#     replacement_combinations = [[]]
+#
+#     # Creăm combinațiile prin bucle imbricate
+#     for word in words:
+#         word_replacements = replacements.get(word, [word])
+#         new_combinations = []
+#         for existing_combination in replacement_combinations:
+#             for replacement in word_replacements:
+#                 new_combinations.append(existing_combination + [replacement])
+#         replacement_combinations = new_combinations
+#
+#     # Generăm propozițiile din combinațiile de înlocuiri
+#     new_texts = []
+#     for combination in replacement_combinations:
+#         # Creăm propoziția folosind combinația curentă
+#         new_text = ' '.join(combination)
+#         new_texts.append(new_text)
+#
+#     # Filtrăm propozițiile pentru a păstra doar cele cu cele mai multe cuvinte înlocuite
+#     def count_replacements(original_text, new_text):
+#         # Comparăm cuvintele din textul original și textul înlocuit
+#         original_words = original_text.split()
+#         new_words = new_text.split()
+#         replacements_count = sum(1 for o, n in zip(original_words, new_words) if o != n)
+#         return replacements_count
+#
+#     # Sortăm propozițiile după numărul de cuvinte înlocuite
+#     new_texts.sort(key=lambda t: count_replacements(text, t), reverse=True)
+#
+#     # Limita numărul de propoziții (dacă este necesar)
+#     # Păstrează doar primele N propoziții cu cele mai multe înlocuiri
+#     N = max_sentences  # Păstrezi doar primele max_sentences propoziții
+#     new_texts = new_texts[:N]
+#
+#     # Dacă ai generat prea puține propoziții, adaugă aleatorii pentru a păstra diversitatea
+#     if len(new_texts) < max_sentences:
+#         additional_sentences_needed = max_sentences - len(new_texts)
+#         random_sentences = random.sample(new_texts, len(new_texts))  # Aleatoriu din propozițiile deja generate
+#         new_texts.extend(random_sentences[:additional_sentences_needed])
+#
+#     return new_texts
+
+# def replace_words_with_all_variants(text, words, max_sentences=150):
+#     replacements = {}
+#
+#     # Creăm un dicționar cu toate variantele posibile pentru fiecare cuvânt
+#     for word in words:
+#         synonyms, hypernyms, antonyms = get_synonyms_hypernyms_antonyms_en(word)
+#
+#         # Adăugăm toate variantele (sinonime, antonime, hiperonime)
+#         replacement_options = []
+#
+#         if antonyms:
+#             replacement_options.append(f"not {random.choice(antonyms)}")
+#
+#         if synonyms:
+#             replacement_options.extend(synonyms)
+#
+#         if hypernyms:
+#             replacement_options.extend(hypernyms)
+#
+#         if replacement_options:
+#             replacements[word] = replacement_options
+#         else:
+#             replacements[word] = [word]  # Lăsăm cuvintele non-cheie nemodificate
+#
+#     # Creăm combinațiile posibile
+#     replacement_combinations = [[]]
+#
+#     # Creăm combinațiile prin bucle imbricate
+#     for word in words:
+#         word_replacements = replacements.get(word, [word])
+#         new_combinations = []
+#         for existing_combination in replacement_combinations:
+#             for replacement in word_replacements:
+#                 new_combinations.append(existing_combination + [replacement])
+#         replacement_combinations = new_combinations
+#
+#     # Creăm o listă de dicționare cu înlocuirile pentru fiecare propoziție
+#     sentence_replacements = []
+#     for combination in replacement_combinations:
+#         # Creăm propoziția folosind combinația curentă
+#         new_text = ' '.join(combination)
+#
+#         # Creăm un dicționar pentru această propoziție
+#         replacement_dict = {}
+#
+#         # Comparăm propoziția generată cu propoziția originală pentru a înlocui cuvintele
+#         for original_word, new_word in zip(words, combination):
+#             if original_word != new_word:  # Dacă cuvântul a fost înlocuit
+#                 replacement_dict[original_word] = new_word
+#
+#         if replacement_dict:  # Adăugăm în dicționar doar dacă sunt înlocuiri
+#             sentence_replacements.append(replacement_dict)
+#
+#     # Limita numărul de propoziții (dacă este necesar)
+#     N = max_sentences  # Păstrezi doar primele max_sentences propoziții
+#     sentence_replacements = sentence_replacements[:N]
+#
+#     # Dacă ai generat prea puține propoziții, adaugă aleatoriu pentru a păstra diversitatea
+#     if len(sentence_replacements) < max_sentences:
+#         additional_sentences_needed = max_sentences - len(sentence_replacements)
+#         random_sentences = random.sample(sentence_replacements, len(sentence_replacements))  # Aleatoriu din propozițiile deja generate
+#         sentence_replacements.extend(random_sentences[:additional_sentences_needed])
+#
+#     return sentence_replacements
+
+def replace_words_20_percent(text, words, max_sentences=150):
     replacements = {}
+    word_count = len(words)
+    min_replaced = int(word_count * 0.20)  # 20% din cuvinte trebuie înlocuite
+    replaced_count = 0
 
     # Creăm un dicționar cu toate variantele posibile pentru fiecare cuvânt
     for word in words:
-        if word in keywords:  # Înlocuim doar cuvintele cheie
-            synonyms, hypernyms, antonyms = get_synonyms_hypernyms_antonyms_en(word)
+        if replaced_count >= min_replaced:  # Dacă am înlocuit deja 20% din cuvinte, ieșim
+            break
 
-            # Adăugăm toate variantele (sinonime, antonime, hiperonime)
-            replacement_options = []
+        synonyms, hypernyms, antonyms = get_synonyms_hypernyms_antonyms_en(word)
 
-            if antonyms:
-                replacement_options.append(f"not {random.choice(antonyms)}")
+        # Adăugăm toate variantele (sinonime, antonime, hiperonime) dacă există
+        replacement_options = []
+        if antonyms:
+            replacement_options.append(f"not {random.choice(antonyms)}")
+        if synonyms:
+            replacement_options.extend(synonyms)
+        if hypernyms:
+            replacement_options.extend(hypernyms)
 
-            if synonyms:
-                replacement_options.extend(synonyms)
-
-            if hypernyms:
-                replacement_options.extend(hypernyms)
-
-            if replacement_options:
-                replacements[word] = replacement_options
+        if replacement_options:
+            replacements[word] = replacement_options
+            replaced_count += 1  # Incrementăm numărul de cuvinte înlocuite
         else:
-            replacements[word] = [word]  # Lăsăm cuvintele non-cheie nemodificate
+            replacements[word] = [word]  # Lăsăm cuvintele fără înlocuiri nemodificate
 
-    # Creăm combinațiile posibile
+    # Dacă am înlocuit deja 20% din cuvinte, începem să generăm propozițiile
     replacement_combinations = [[]]
-
-    # Creăm combinațiile prin bucle imbricate
     for word in words:
         word_replacements = replacements.get(word, [word])
         new_combinations = []
@@ -253,43 +387,40 @@ def replace_words_with_all_variants(text, words, keywords, max_sentences=150):
                 new_combinations.append(existing_combination + [replacement])
         replacement_combinations = new_combinations
 
-    # Generăm propozițiile din combinațiile de înlocuiri
-    new_texts = []
+    # Creăm o listă de propoziții generate și verificăm procentul de cuvinte înlocuite
+    sentence_replacements = []
     for combination in replacement_combinations:
-        # Creăm propoziția folosind combinația curentă
         new_text = ' '.join(combination)
-        new_texts.append(new_text)
+        # Numărăm cuvintele înlocuite
+        replacement_dict = {}
+        for original_word, new_word in zip(words, combination):
+            if original_word != new_word:
+                replacement_dict[original_word] = new_word
+                replaced_count += 1
 
-    # Filtrăm propozițiile pentru a păstra doar cele cu cele mai multe cuvinte înlocuite
-    def count_replacements(original_text, new_text):
-        # Comparăm cuvintele din textul original și textul înlocuit
-        original_words = original_text.split()
-        new_words = new_text.split()
-        replacements_count = sum(1 for o, n in zip(original_words, new_words) if o != n)
-        return replacements_count
+        # Adăugăm propoziția doar dacă am înlocuit cel puțin 20% din cuvintele originale
+        if replacement_dict and replaced_count >= min_replaced:
+            sentence_replacements.append(replacement_dict)
 
-    # Sortăm propozițiile după numărul de cuvinte înlocuite
-    new_texts.sort(key=lambda t: count_replacements(text, t), reverse=True)
+    # Limita numărul de propoziții
+    N = max_sentences
+    sentence_replacements = sentence_replacements[:N]
 
-    # Limita numărul de propoziții (dacă este necesar)
-    # Păstrează doar primele N propoziții cu cele mai multe înlocuiri
-    N = max_sentences  # Păstrezi doar primele max_sentences propoziții
-    new_texts = new_texts[:N]
+    # Dacă nu am ajuns la numărul de propoziții dorit, adăugăm propoziții suplimentare aleatorii
+    if len(sentence_replacements) < max_sentences:
+        additional_sentences_needed = max_sentences - len(sentence_replacements)
+        random_sentences = random.sample(sentence_replacements, len(sentence_replacements))  # Aleatoriu
+        sentence_replacements.extend(random_sentences[:additional_sentences_needed])
 
-    # Dacă ai generat prea puține propoziții, adaugă aleatorii pentru a păstra diversitatea
-    if len(new_texts) < max_sentences:
-        additional_sentences_needed = max_sentences - len(new_texts)
-        random_sentences = random.sample(new_texts, len(new_texts))  # Aleatoriu din propozițiile deja generate
-        new_texts.extend(random_sentences[:additional_sentences_needed])
+    return sentence_replacements
 
-    return new_texts
 
-def replace_words_with_all_variants(text, words, keywords, max_sentences=150):
+def replace_words_keywords_only(text, words, keywords, max_sentences=150):
     replacements = {}
 
     # Creăm un dicționar cu toate variantele posibile pentru fiecare cuvânt
     for word in words:
-        if word in keywords:  # Înlocuim doar cuvintele cheie
+        if word in keywords:
             synonyms, hypernyms, antonyms = get_synonyms_hypernyms_antonyms_en(word)
 
             # Adăugăm toate variantele (sinonime, antonime, hiperonime)
@@ -306,8 +437,8 @@ def replace_words_with_all_variants(text, words, keywords, max_sentences=150):
 
             if replacement_options:
                 replacements[word] = replacement_options
-        else:
-            replacements[word] = [word]  # Lăsăm cuvintele non-cheie nemodificate
+            else:
+                replacements[word] = [word]  # Lăsăm cuvintele non-cheie nemodificate
 
     # Creăm combinațiile posibile
     replacement_combinations = [[]]
@@ -349,8 +480,6 @@ def replace_words_with_all_variants(text, words, keywords, max_sentences=150):
         sentence_replacements.extend(random_sentences[:additional_sentences_needed])
 
     return sentence_replacements
-
-
 
 def apply_replacements_to_text(text, replacements):
     # Împărțim textul astfel încât să păstrăm cuvintele și semnele de punctuație
@@ -455,7 +584,7 @@ def nlp_task():
 
         # Generare propoziții noi cu toate variantele de înlocuire
         keywords = extract_keywords(text)
-        new_texts = replace_words_with_all_variants(text, words, keywords)
+        new_texts = replace_words_20_percent(text, words)
         print("Propozițiile generate cu sinonime:")
         for new_text in new_texts:
             print(normalize_text(new_text))
@@ -476,7 +605,7 @@ def nlp_task():
         print("Keywords:", keywords)
 
         print("Propozițiile generate cu sinonime:")
-        replacements_list = replace_words_with_all_variants(text, words, keywords)
+        replacements_list = replace_words_20_percent(text, words)
         new_texts = generate_texts_from_replacements(text, replacements_list)
         for new_text in new_texts:
             print(new_text)
