@@ -574,10 +574,9 @@ def apply_replacements(text, replacements):
 
 def write_to_file(file_path, original_text, keywords, new_texts):
     with open(file_path, 'w', encoding='utf-8') as file:
+        file.write(f"{original_text}\n")  # Scrie propoziția originală
         for new_text in new_texts:
-            file.write(f"Input: {original_text}\n")  # Scrie propoziția originală
-            file.write(f"Keywords: {', '.join(keywords)}\n")  # Scrie cuvintele cheie
-            file.write(f"Output: {new_text}\n\n")  # Scrie propoziția generată
+            file.write(f"{new_text}\n")  # Scrie propoziția generată
 
 # Funcție pentru procesarea întregului task
 def nlp_task():
