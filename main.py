@@ -572,6 +572,13 @@ def apply_replacements(text, replacements):
     new_text = ' '.join([replacements.get(word, word) for word in words])
     return new_text
 
+def write_to_file(file_path, original_text, keywords, new_texts):
+    with open(file_path, 'w', encoding='utf-8') as file:
+        for new_text in new_texts:
+            file.write(f"Input: {original_text}\n")  # Scrie propoziția originală
+            file.write(f"Keywords: {', '.join(keywords)}\n")  # Scrie cuvintele cheie
+            file.write(f"Output: {new_text}\n\n")  # Scrie propoziția generată
+
 # Funcție pentru procesarea întregului task
 def nlp_task():
     text = read_text() # citește textul
@@ -607,8 +614,11 @@ def nlp_task():
         print("Propozițiile generate cu sinonime:")
         replacements_list = replace_words_20_percent(text, words)
         new_texts = generate_texts_from_replacements(text, replacements_list)
+
         for new_text in new_texts:
             print(new_text)
+
+        write_to_file("training_data.txt", text, keywords, new_texts)
 
 
         #print(new_text)
